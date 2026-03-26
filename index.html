@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบประเมินผลการปฏิบัติงาน</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <div class="container py-5">
+    
+    <div id="loginSection" class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h3 class="text-center mb-4 text-primary">เข้าสู่ระบบ</h3>
+            <form id="loginForm">
+              <div class="mb-3">
+                <label class="form-label">ชื่อผู้ใช้ (Username)</label>
+                <input type="text" id="username" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">รหัสผ่าน (Password)</label>
+                <input type="password" id="password" class="form-control" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100" id="loginBtn">เข้าสู่ระบบ</button>
+              <div id="loginError" class="text-danger mt-3 text-center" style="display: none;"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dashboardSection" style="display: none;">
+      
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-3 mb-md-0">ระบบประเมินผลการปฏิบัติงาน</h2>
+        <button class="btn btn-outline-danger" onclick="location.reload()">ออกจากระบบ</button>
+      </div>
+
+      <div class="card p-3 mb-4 shadow-sm border-0 border-start border-5 border-primary">
+        <div id="userInfoDisplay" class="fs-6"></div>
+      </div>
+
+      <div id="uploadSection" class="card p-4 shadow-sm border-0 mb-4" style="display: none;">
+        <h4 class="text-primary mb-3">อัปโหลดเอกสารประกอบการประเมิน</h4>
+        <form id="uploadForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">1. ไฟล์แบบประเมิน (PDF เท่านั้น)</label>
+            <input type="file" id="evalFile" class="form-control" accept="application/pdf" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">2. ไฟล์ SAR (PDF เท่านั้น)</label>
+            <input type="file" id="sarFile" class="form-control" accept="application/pdf" required>
+          </div>
+          <button type="submit" class="btn btn-success" id="uploadBtn">ส่งเอกสาร</button>
+        </form>
+      </div>
+
+      <div id="evaluateSection" class="card p-4 shadow-sm border-0 mb-4" style="display: none;">
+        <h4 class="text-warning mb-3">รายชื่อผู้ขอรับการประเมิน</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>ชื่อ-สกุล</th>
+                <th>วิทยฐานะ</th>
+                <th>ไฟล์แนบ</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="evaluationTableBody">
+              </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="directorSection" class="card p-4 shadow-sm border-0" style="display: none;">
+        <h4 class="text-success mb-3">📊 สรุปผลคะแนนการประเมิน (Dashboard ผู้อำนวยการ)</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>ชื่อ-สกุล</th>
+                <th>วิทยฐานะ</th>
+                <th class="text-center">ประเมินแล้ว (คน)</th>
+                <th class="text-center">คะแนนเฉลี่ยรวม</th>
+              </tr>
+            </thead>
+            <tbody id="directorTableBody">
+              </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal fade" id="evaluationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="scoreForm">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title fw-bold">ฟอร์มประเมินผลการปฏิบัติงาน</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            
+            <div class="alert alert-secondary">
+              <strong>ผู้รับการประเมิน:</strong> <span id="evalTargetName" class="text-primary fw-bold"></span><br>
+              <strong>วิทยฐานะ:</strong> <span id="evalTargetRank" class="text-danger fw-bold"></span>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">องค์ประกอบที่ 1: การประเมินประสิทธิภาพและประสิทธิผลการปฏิบัติงาน</label>
+              <input type="number" id="scorePart1" class="form-control score-input" required min="0" step="0.01" placeholder="กรอกคะแนนส่วนที่ 1">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">องค์ประกอบที่ 2: การประเมินการมีส่วนร่วมในการพัฒนาการศึกษา</label>
+              <input type="number" id="scorePart2" class="form-control score-input" required min="0" step="0.01" placeholder="กรอกคะแนนส่วนที่ 2">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">องค์ประกอบที่ 3: การปฏิบัติตนในการรักษาวินัย คุณธรรม จริยธรรมฯ</label>
+              <input type="number" id="scorePart3" class="form-control score-input" required min="0" max="10" step="0.01" placeholder="กรอกคะแนนส่วนที่ 3 (เต็ม 10)">
+            </div>
+
+            <div class="mb-3 p-3 bg-light border rounded text-center shadow-sm">
+              <h4 class="mb-0">คะแนนรวมทั้งหมด: <span id="totalScoreDisplay" class="text-success fw-bold">0.00</span></h4>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">ข้อเสนอแนะเพิ่มเติม (ถ้ามี)</label>
+              <textarea id="evalComments" class="form-control" rows="2" placeholder="ระบุข้อเสนอแนะเพื่อการพัฒนา..."></textarea>
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary" id="submitScoreBtn">บันทึกผลการประเมิน</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ⚠️ นำ URL ของ Web App ที่ได้จาก Google Apps Script มาใส่ตรงนี้
+    const API_URL = "https://script.google.com/a/macros/thaimooc.ac.th/s/AKfycby9AZpiNErOIRzLaUJbR-L7-_X455OHuwsmVQCiFEttS1y3YoST6BSkzfDLFCo9pmUO/exec"; 
+
+    let currentUser = null;
+    let currentEvalTarget = null;
+
+    // --- 1. จัดการการล็อกอิน ---
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const errorDiv = document.getElementById('loginError');
+      btn.disabled = true;
+      btn.innerText = 'กำลังตรวจสอบ...';
+      errorDiv.style.display = 'none';
+
+      const payload = {
+        action: "login",
+        userName: document.getElementById('username').value,
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const response = await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' } // ป้องกันปัญหา CORS
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+          currentUser = result.user;
+          setupDashboard();
+        } else {
+          errorDiv.innerText = result.message;
+          errorDiv.style.display = 'block';
+        }
+      } catch (err) {
+        errorDiv.innerText = "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์";
+        errorDiv.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'เข้าสู่ระบบ';
+      }
+    });
+
+    // --- 2. จัดการสิทธิ์การแสดงผล ---
+    function setupDashboard() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+      
+      let evaluatorText = currentUser.isEvaluator ? ' <span class="badge bg-success ms-2">กรรมการประเมิน</span>' : '';
+
+      document.getElementById('userInfoDisplay').innerHTML = 
+        `<strong>ชื่อ-สกุล:</strong> ${currentUser.name} ${evaluatorText} <br> 
+         <strong>ตำแหน่ง:</strong> ${currentUser.position} <br> 
+         <strong>วิทยฐานะ:</strong> ${currentUser.academicRank}`;
+
+      const restrictedPositions = ['ผู้อำนวยการ', 'ธุรการ'];
+      if (!restrictedPositions.includes(currentUser.position)) {
+        document.getElementById('uploadSection').style.display = 'block';
+      }
+
+      if (currentUser.position === 'ผู้อำนวยการ' || currentUser.isEvaluator === true) {
+        document.getElementById('evaluateSection').style.display = 'block';
+        loadSubmissionsForEvaluator();
+      }
+
+      if (currentUser.position === 'ผู้อำนวยการ') {
+        document.getElementById('directorSection').style.display = 'block';
+        loadDirectorDashboard();
+      }
+    }
+
+    // --- 3. อัปโหลดไฟล์ ---
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('uploadBtn');
+      btn.disabled = true;
+      btn.innerText = 'กำลังอัปโหลด กรุณารอสักครู่...';
+
+      try {
+        const evalFile = document.getElementById('evalFile').files[0];
+        const sarFile = document.getElementById('sarFile').files[0];
+
+        const payload = {
+          action: "upload",
+          userName: currentUser.userName,
+          name: currentUser.name,
+          academicRank: currentUser.academicRank,
+          evalFileName: `Eval_${currentUser.userName}.pdf`,
+          evalFileBase64: await getBase64(evalFile),
+          sarFileName: `SAR_${currentUser.userName}.pdf`,
+          sarFileBase64: await getBase64(sarFile)
+        };
+
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+        const result = await response.json();
+
+        if (result.status === "success") {
+          alert("ส่งเอกสารเรียบร้อยแล้ว!");
+          document.getElementById('uploadForm').reset();
+        } else {
+          alert("เกิดข้อผิดพลาด: " + result.message);
+        }
+      } catch (err) {
+        alert("การเชื่อมต่อล้มเหลว: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'ส่งเอกสาร';
+      }
+    });
+
+    function getBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // --- 4. โหลดตารางรายชื่อครูให้กรรมการประเมิน ---
+    async function loadSubmissionsForEvaluator() {
+      const tbody = document.getElementById('evaluationTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">กำลังโหลดข้อมูล...</td></tr>';
+
+      try {
+        const payload = { action: "getSubmissions", userName: currentUser.userName };
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+        const result = await response.json();
+
+        if (result.status === "success") {
+          tbody.innerHTML = "";
+          if (result.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">ยังไม่มีข้อมูลการส่งงาน</td></tr>';
+            return;
+          }
+
+          result.data.forEach(item => {
+            const row = `
+              <tr>
+                <td>${item.name}</td>
+                <td>${item.academicRank}</td>
+                <td>
+                  <a href="${item.evalUrl}" target="_blank" class="btn btn-sm btn-outline-primary mb-1 w-100">ดูแบบประเมิน</a>
+                  <a href="${item.sarUrl}" target="_blank" class="btn btn-sm btn-outline-info w-100">ดู SAR</a>
+                </td>
+                <td><span class="badge bg-secondary">${item.status}</span></td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-warning" onclick="openEvaluationForm('${item.userName}', '${item.name}', '${item.academicRank}')">ให้คะแนน</button>
+                </td>
+              </tr>
+            `;
+            tbody.innerHTML += row;
+          });
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">โหลดล้มเหลว</td></tr>`;
+      }
+    }
+
+    // --- 5. โหลด Dashboard ผอ. ---
+    async function loadDirectorDashboard() {
+      const tbody = document.getElementById('directorTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">กำลังคำนวณผลคะแนน...</td></tr>';
+
+      try {
+        const payload = { action: "getDirectorDashboard", position: currentUser.position };
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+        const result = await response.json();
+
+        if (result.status === "success") {
+          tbody.innerHTML = "";
+          if (result.data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">ไม่มีข้อมูลครู</td></tr>';
+            return;
+          }
+
+          result.data.forEach(item => {
+            const badgeClass = item.avgScore === "รอการประเมิน" ? "bg-warning text-dark" : "bg-success";
+            tbody.innerHTML += `
+              <tr>
+                <td>${item.name}</td>
+                <td>${item.academicRank}</td>
+                <td class="text-center fw-bold text-primary">${item.evalCount}</td>
+                <td class="text-center"><span class="badge ${badgeClass} fs-6">${item.avgScore}</span></td>
+              </tr>
+            `;
+          });
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-danger text-center">เกิดข้อผิดพลาดในการโหลด</td></tr>`;
+      }
+    }
+
+    // --- 6. จัดการ Modal ให้คะแนน ---
+    function openEvaluationForm(targetUserName, targetName, targetAcademicRank) {
+      currentEvalTarget = { userName: targetUserName, name: targetName, academicRank: targetAcademicRank };
+      document.getElementById('evalTargetName').innerText = targetName;
+      document.getElementById('evalTargetRank').innerText = targetAcademicRank;
+      document.getElementById('scoreForm').reset();
+      document.getElementById('totalScoreDisplay').innerText = "0.00";
+      
+      new bootstrap.Modal(document.getElementById('evaluationModal')).show();
+    }
+
+    document.querySelectorAll('.score-input').forEach(input => {
+      input.addEventListener('input', function() {
+        let s1 = parseFloat(document.getElementById('scorePart1').value) || 0;
+        let s2 = parseFloat(document.getElementById('scorePart2').value) || 0;
+        let s3 = parseFloat(document.getElementById('scorePart3').value) || 0;
+        document.getElementById('totalScoreDisplay').innerText = (s1 + s2 + s3).toFixed(2);
+      });
+    });
+
+    document.getElementById('scoreForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitScoreBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "กำลังบันทึก...";
+
+      let s1 = parseFloat(document.getElementById('scorePart1').value) || 0;
+      let s2 = parseFloat(document.getElementById('scorePart2').value) || 0;
+      let s3 = parseFloat(document.getElementById('scorePart3').value) || 0;
+
+      const payload = {
+        action: "submitScore",
+        evaluatorUserName: currentUser.userName,
+        targetUserName: currentEvalTarget.userName,
+        targetAcademicRank: currentEvalTarget.academicRank,
+        scorePart1: s1,
+        scorePart2: s2,
+        scorePart3: s3,
+        totalScore: s1 + s2 + s3,
+        comments: document.getElementById('evalComments').value,
+        round: "1/2567" 
+      };
+
+      try {
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
+        const result = await response.json();
+
+        if (result.status === "success") {
+          alert("บันทึกคะแนนสำเร็จ!");
+          bootstrap.Modal.getInstance(document.getElementById('evaluationModal')).hide();
+          
+          if(currentUser.position === 'ผู้อำนวยการ') {
+            loadDirectorDashboard(); // โหลดแดชบอร์ด ผอ. ใหม่เพื่ออัปเดตคะแนน
+          }
+        } else {
+          alert("เกิดข้อผิดพลาด: " + result.message);
+        }
+      } catch (err) {
+        alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "บันทึกผลการประเมิน";
+      }
+    });
+
+  </script>
+</body>
+</html>
