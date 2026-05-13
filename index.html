@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>ระบบลงเวลาปฏิบัติงานโรงเรียนอนุบาลชุมแสง</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
@@ -22,280 +23,177 @@
       --card-shadow: 0 8px 32px rgba(0,212,255,0.08);
       --glow: 0 0 20px rgba(0,212,255,0.3);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-
     body::before {
-      content: ''; position: fixed; inset: 0;
-      background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      content: ""; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
       background-size: 40px 40px; pointer-events: none; z-index: 0;
     }
-
     .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.12; pointer-events: none; z-index: 0; }
-    .blob-1 { width: 400px; height: 400px; background: var(--accent); top: -100px; right: -100px; }
+    .blob-1 { width: 400px; height: 400px; background: var(--accent); top: -100px; right: 100px; }
     .blob-2 { width: 300px; height: 300px; background: var(--accent2); bottom: 50px; left: -80px; }
-
-    /* ─── SCREENS ─────────────────── */
+    
     .screen { display: none; }
     .screen.active { display: block; }
-
-    /* ─── LOGIN SCREEN ────────────── */
-    .login-wrap {
-      position: relative; z-index: 1; min-height: 100vh;
-      display: flex; align-items: center; justify-content: center; padding: 24px;
-    }
-    .login-box {
-      width: 100%; max-width: 400px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 24px; padding: 40px 32px; text-align: center;
-      box-shadow: var(--card-shadow);
-    }
-    .login-icon {
-      width: 80px; height: 80px; margin: 0 auto 20px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 22px; display: flex; align-items: center; justify-content: center;
-      font-size: 38px; box-shadow: var(--glow);
-      animation: pulse-icon 3s ease-in-out infinite;
-    }
-    @keyframes pulse-icon {
-      0%,100% { box-shadow: 0 0 20px rgba(0,212,255,0.3); }
-      50%      { box-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 60px rgba(0,255,157,0.2); }
-    }
+    
+    /* LOGIN & ERROR SCREEN */
+    .login-wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .login-box { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 40px 32px; text-align: center; box-shadow: var(--card-shadow); }
+    .login-icon { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: var(--glow); animation: pulse-icon 3s ease-in-out infinite; }
+    @keyframes pulse-icon { 0%, 100% { box-shadow: 0 0 20px rgba(0,212,255,0.3); } 50% {box-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 60px rgba(0,255,157,0.2); } }
     .login-box h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .login-box p  { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
-
-    /* error states */
-    .login-error-box {
-      background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.3);
-      border-radius: 12px; padding: 16px; margin-bottom: 20px; display: none;
-    }
-    .login-error-box .err-icon { font-size: 28px; margin-bottom: 8px; }
-    .login-error-box .err-title { font-size: 15px; font-weight: 700; color: var(--danger); }
-    .login-error-box .err-msg   { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
-    .login-error-box .err-email { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #ff8e99; margin-top: 6px; }
-
+    .login-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
+    
+    .login-error-box { background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; display: none; }
+    .err-icon { font-size: 28px; margin-bottom: 8px; }
+    .err-title { font-size: 15px; font-weight: 700; color: var(--danger); }
+    .err-msg { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+    .err-email { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #ff8e99; margin-top: 6px; }
     .login-loading { font-size: 13px; color: var(--text-muted); padding: 20px 0; display: none; }
-    .login-loading .spin { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
-
-    /* ─── MAIN SCREEN ─────────────── */
+    .login-loading .spin { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
+    
+    /* MAIN SCREEN */
     .container { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 16px; padding-bottom: 40px; }
-
-    /* User bar */
-    .user-bar {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .user-avatar {
-      width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 700; color: #000;
-    }
+    .user-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #000; }
     .user-info { flex: 1; min-width: 0; }
-    .user-name  { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-id-badge {
-      background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25);
-      border-radius: 8px; padding: 4px 10px;
-      font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent);
-      flex-shrink: 0; white-space: nowrap;
-    }
-
-    /* Header */
+    .user-name { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-id-badge { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); border-radius: 8px; padding: 4px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); flex-shrink: 0; white-space: nowrap; }
+    
     .header { text-align: center; padding: 16px 0 14px; }
-    .header-icon {
-      width: 56px; height: 56px; margin: 0 auto 10px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 16px; display: flex; align-items: center; justify-content: center;
-      font-size: 26px; box-shadow: var(--glow);
-      animation: pulse-icon 3s ease-in-out infinite;
-    }
+    .header-icon { width: 56px; height: 56px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: var(--glow); animation: pulse-icon 3s ease-in-out infinite; }
     .header h1 { font-size: 20px; font-weight: 700; }
-    .header p  { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-
-    /* Clock */
-    .clock-bar {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 12px 18px; margin-bottom: 14px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    }
+    .header p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    
+    .clock-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .clock-time { font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 500; color: var(--accent); letter-spacing: 2px; }
     .clock-date { font-size: 12px; color: var(--text-muted); text-align: right; line-height: 1.6; }
-
-    /* Card */
+    
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
-    .card-title {
-      font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 1.5px;
-      text-transform: uppercase; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card-title::after { content:''; flex:1; height:1px; background: linear-gradient(90deg, var(--border), transparent); }
-
-    /* Stats */
+    .card-title { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .card-title::after { content:""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+    
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-item  { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
     .stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 500; color: var(--accent); }
     .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    /* Form */
+    
     .form-group { margin-bottom: 14px; }
     label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-
-    /* Read-only field */
-    .readonly-field {
-      width: 100%; background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.15);
-      border-radius: 10px; padding: 12px 14px; color: var(--text);
-      font-family: 'Sarabun', sans-serif; font-size: 15px;
-      display: flex; align-items: center; gap: 10px;
-    }
+    .readonly-field { width: 100%; background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.15); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 15px; display: flex; align-items: center; gap: 10px; }
     .readonly-field .lock-icon { font-size: 14px; opacity: 0.5; flex-shrink: 0; }
     .readonly-field .field-val { flex: 1; }
-    .readonly-field .field-badge {
-      font-size: 10px; background: rgba(0,212,255,0.1); color: var(--accent);
-      border: 1px solid rgba(0,212,255,0.2); border-radius: 5px; padding: 2px 7px;
-      flex-shrink: 0; white-space: nowrap;
-    }
-
-    /* Type toggle */
+    .readonly-field .field-badge { font-size: 10px; background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); border-radius: 5px; padding: 2px 7px; flex-shrink: 0; white-space: nowrap; }
+    
     .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .type-btn {
-      padding: 14px 10px; border-radius: 12px; border: 2px solid var(--border);
-      background: var(--surface2); color: var(--text-muted);
-      font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .type-btn:hover    { border-color: var(--accent); color: var(--accent); }
-    .type-btn.active-in  { border-color: var(--accent2); background: rgba(0,255,157,0.08); color: var(--accent2); box-shadow: 0 0 16px rgba(0,255,157,0.15); }
+    .type-btn { padding: 14px 10px; border-radius: 12px; border: 2px solid var(--border); background: var(--surface2); color: var(--text-muted); font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .type-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .type-btn.active-in { border-color: var(--accent2); background: rgba(0,255,157,0.08); color: var(--accent2); box-shadow: 0 0 16px rgba(0,255,157,0.15); }
     .type-btn.active-out { border-color: var(--accent3); background: rgba(255,107,53,0.08); color: var(--accent3); box-shadow: 0 0 16px rgba(255,107,53,0.15); }
-
-    /* GPS */
+    
     .gps-status { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
-    .gps-dot    { width: 10px; height: 10px; border-radius: 50%; background: #3a5070; flex-shrink: 0; transition: all 0.3s; }
+    .gps-dot { width: 10px; height: 10px; border-radius: 50%; background: #3a5070; flex-shrink: 0; transition: all 0.3s; }
     .gps-dot.acquiring { background: #f59e0b; animation: blink 1s infinite; }
-    .gps-dot.success   { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
-    .gps-dot.error     { background: var(--danger); }
-    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-    .gps-text   { flex:1; font-size:13px; color:var(--text-muted); }
-    .gps-coords { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--accent); margin-top:2px; }
-    .gps-retry-btn { background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; font-family:'Sarabun',sans-serif; transition:all 0.2s; }
+    .gps-dot.success { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+    .gps-dot.error { background: var(--danger); }
+    @keyframes blink { 0%, 100%{opacity:1;} 50% {opacity:0.3;}}
+    .gps-text { flex: 1; font-size:13px; color:var(--text-muted); }
+    .gps-coords { font-family: 'IBM Plex Mono', monospace; font-size:11px; color:var(--accent); margin-top:2px; }
+    .gps-retry-btn { background:none; border:1px solid var(--border); color:var(--text-muted); border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; font-family: 'Sarabun', sans-serif; transition: all 0.2s; }
     .gps-retry-btn:hover { border-color:var(--accent); color:var(--accent); }
-    .accuracy-bar { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
-    .accuracy-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); border-radius:2px; transition:width 0.5s; width:0%; }
-
-    /* Textarea */
-    textarea {
-      width:100%; background:var(--surface2); border:1px solid var(--border);
-      border-radius:10px; padding:12px 14px; color:var(--text);
-      font-family:'Sarabun',sans-serif; font-size:14px; resize:none; height:68px;
-      outline:none; transition:all 0.2s;
-    }
+    .accuracy-bar { height:3px; background:var(--border); border-radius: 2px; margin-top:8px; overflow:hidden; }
+    .accuracy-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 2px; transition:width 0.5s; width:0%; }
+    
+    textarea { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius: 10px; padding:12px 14px; color:var(--text); font-family: 'Sarabun', sans-serif; font-size:14px; resize: none; height:68px; outline: none; transition:all 0.2s; }
     textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,212,255,0.1); }
     textarea::placeholder { color:#3a5070; }
-
-    /* Submit */
-    .submit-btn {
-      width:100%; padding:16px;
-      background:linear-gradient(135deg,#0077aa,var(--accent));
-      border:none; border-radius:14px; color:#fff;
-      font-family:'Sarabun',sans-serif; font-size:17px; font-weight:700;
-      cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;
-      display:flex; align-items:center; justify-content:center; gap:10px;
-    }
-    .submit-btn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,212,255,0.4); }
+    
+    .submit-btn { width:100%; padding:16px; background: linear-gradient(135deg, #0077aa,var(--accent)); border:none; border-radius:14px; color:#fff; font-family: 'Sarabun', sans-serif; font-size:17px; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; display: flex; align-items:center; justify-content:center; gap:10px; }
+    .submit-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow:0 8px 24px rgba(0,212,255,0.4); }
     .submit-btn:disabled { opacity:0.5; cursor:not-allowed; }
-    .submit-btn .spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; display:none; }
+    .submit-btn .spinner { width: 20px; height:20px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; display:none; }
     .submit-btn.loading .spinner { display:block; }
     .submit-btn.loading .btn-text { display:none; }
     @keyframes spin { to{transform:rotate(360deg);} }
-
-    /* History */
-    .history-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid rgba(30,58,95,0.5); }
+    
+    .history-item { display: flex; align-items:center; gap: 12px; padding:12px 0; border-bottom:1px solid rgba(30,58,95,0.5); }
     .history-item:last-child { border-bottom:none; padding-bottom:0; }
     .history-item:first-child { padding-top:0; }
-    .history-badge { padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing:0.5px; white-space:nowrap; }
-    .badge-in  { background:rgba(0,255,157,0.1); color:var(--accent2); border:1px solid rgba(0,255,157,0.2); }
+    .history-badge { padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; letter-spacing: 0.5px; white-space:nowrap; }
+    .badge-in {background:rgba(0,255,157,0.1); color:var(--accent2); border:1px solid rgba(0,255,157,0.2); }
     .badge-out { background:rgba(255,107,53,0.1); color:var(--accent3); border:1px solid rgba(255,107,53,0.2); }
-    .history-info { flex:1; min-width:0; }
-    .history-time { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent); font-weight:500; }
+    .history-info { flex: 1; min-width:0; }
+    .history-time { font-family: 'IBM Plex Mono', monospace; font-size:13px; color:var(--accent); font-weight:500; }
     .history-meta { font-size:11px; color:var(--text-muted); margin-top:1px; }
-    .maps-link    { color:var(--accent); text-decoration:none; font-size:18px; opacity:0.6; transition:opacity 0.2s; }
+    .maps-link { color:var(--accent); text-decoration:none; font-size:18px; opacity:0.6; transition:opacity 0.2s; }
     .maps-link:hover { opacity:1; }
+    
+    /* Admin Buttons Styling */
+    .admin-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 12px; border-radius: 8px; font-family: 'Sarabun', sans-serif; cursor: pointer; transition: all 0.2s; font-size: 12px; }
+    .admin-btn:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
 
-    /* SweetAlert */
-    .swal2-popup { background:var(--surface)!important; color:var(--text)!important; border:1px solid var(--border)!important; font-family:'Sarabun',sans-serif!important; border-radius:20px!important; }
+    .swal2-popup { background:var(--surface)!important; color:var(--text)!important; border:1px solid var(--border)!important; font-family: 'Sarabun', sans-serif!important; border-radius: 20px!important; }
     .swal2-title { color:var(--text)!important; }
     .swal2-html-container { color:var(--text-muted)!important; }
-    .swal2-confirm { background:linear-gradient(135deg,#0077aa,var(--accent))!important; border-radius:10px!important; font-family:'Sarabun',sans-serif!important; }
-
-    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-    @media (max-width:380px) { .clock-time{font-size:22px;} .container{padding:12px;} }
+    .swal2-confirm { background: linear-gradient(135deg, #0077aa,var(--accent))!important; border-radius: 10px!important; font-family: 'Sarabun', sans-serif!important; }
+    
+    @media (max-width:380px) { .clock-time{font-size:22px;} .container{padding:12px;}}
   </style>
 </head>
 <body>
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: กำลังโหลด / ตรวจสอบ session
-  ═══════════════════════════════════════ -->
   <div id="screenLoading" class="screen active">
     <div class="login-wrap">
       <div class="login-box">
-        <div class="login-icon">📍</div>
+        <div class="login-icon">🔒</div>
         <h1>ระบบลงเวลาปฏิบัติงาน</h1>
         <p>กำลังตรวจสอบข้อมูลบัญชี Google...</p>
-        <div class="login-loading" style="display:flex;align-items:center;justify-content:center;">
+        <div class="login-loading" style="display: flex; align-items:center; justify-content:center;">
           <span class="spin"></span> กำลังโหลด
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: ไม่พบในระบบ / ผิดพลาด
-  ═══════════════════════════════════════ -->
   <div id="screenError" class="screen">
     <div class="login-wrap">
       <div class="login-box">
-        <div class="login-icon">🔒</div>
+        <div class="login-icon">🚫</div>
         <h1>ไม่มีสิทธิ์เข้าใช้งาน</h1>
         <div class="login-error-box" id="errorBox" style="display:block;">
-          <div class="err-icon" id="errIcon">⛔</div>
+          <div class="err-icon" id="errIcon">❌</div>
           <div class="err-title" id="errTitle">ไม่พบบัญชีในระบบ</div>
-          <div class="err-msg"   id="errMsg">บัญชี Google ของคุณยังไม่ได้ลงทะเบียนในระบบพนักงาน กรุณาติดต่อฝ่าย HR</div>
+          <div class="err-msg" id="errMsg">บัญชี Google ของคุณยังไม่ได้ลงทะเบียนในระบบพนักงาน</div>
           <div class="err-email" id="errEmail"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: หน้าหลักลงเวลา
-  ═══════════════════════════════════════ -->
   <div id="screenMain" class="screen">
     <div class="container">
-
-      <!-- User Bar -->
+      
       <div class="user-bar">
         <div class="user-avatar" id="userAvatar">?</div>
         <div class="user-info">
           <div class="user-name" id="userName">—</div>
           <div class="user-meta" id="userMeta">—</div>
         </div>
-        <div class="user-id-badge" id="userIdBadge">—</div>
+        <button id="btnAdmin" style="display:none;" onclick="showScreen('screenAdmin')" class="admin-btn">
+          <i class="fas fa-chart-line"></i> Admin
+        </button>
       </div>
 
-      <!-- Header -->
       <div class="header">
         <div class="header-icon">📍</div>
         <h1>ลงเวลาปฏิบัติงาน</h1>
         <p>GPS Attendance System</p>
       </div>
 
-      <!-- Clock -->
       <div class="clock-bar">
         <div class="clock-time" id="clock">00:00:00</div>
         <div class="clock-date">
@@ -304,59 +202,17 @@
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="card">
-        <div class="card-title">📊 สถิติของฉัน</div>
-        <div class="stats-grid">
-          <div class="stat-item"><div class="stat-value" id="statToday">0</div><div class="stat-label">ครั้งวันนี้</div></div>
-          <div class="stat-item"><div class="stat-value" id="statTotal">0</div><div class="stat-label">ทั้งหมด</div></div>
-        </div>
-      </div>
-
-      <!-- Form -->
-      <div class="card">
-        <div class="card-title">✏️ บันทึกเวลา</div>
-
-        <!-- รหัสพนักงาน — auto จาก Google Account -->
-        <div class="form-group">
-          <label>รหัสพนักงาน</label>
-          <div class="readonly-field">
-            <span class="lock-icon">🔐</span>
-            <span class="field-val" id="fieldEmpId">—</span>
-            <span class="field-badge">Google Account</span>
-          </div>
-        </div>
-
-        <!-- ชื่อ-นามสกุล -->
-        <div class="form-group">
-          <label>ชื่อ-นามสกุล</label>
-          <div class="readonly-field">
-            <span class="lock-icon">👤</span>
-            <span class="field-val" id="fieldFullName">—</span>
-            <span class="field-badge">อัตโนมัติ</span>
-          </div>
-        </div>
-
-        <!-- แผนก -->
-        <div class="form-group">
-          <label>แผนก / หน่วยงาน</label>
-          <div class="readonly-field">
-            <span class="lock-icon">🏢</span>
-            <span class="field-val" id="fieldDept">—</span>
-            <span class="field-badge">อัตโนมัติ</span>
-          </div>
-        </div>
-
-        <!-- ประเภท -->
+        <div class="card-title">บันทึกเวลา</div>
+        
         <div class="form-group">
           <label>ประเภท</label>
           <div class="type-toggle">
-            <button class="type-btn active-in"  id="btnIn"  onclick="setType('เข้างาน')">🟢 เข้างาน</button>
-            <button class="type-btn"             id="btnOut" onclick="setType('ออกงาน')">🔴 ออกงาน</button>
+            <button class="type-btn active-in" id="btnIn" onclick="setType('เข้างาน')"><i class="fas fa-sign-in-alt"></i> เข้างาน</button>
+            <button class="type-btn" id="btnOut" onclick="setType('ออกงาน')"><i class="fas fa-sign-out-alt"></i> ออกงาน</button>
           </div>
         </div>
 
-        <!-- GPS -->
         <div class="form-group">
           <label>ตำแหน่ง GPS</label>
           <div class="gps-status">
@@ -365,12 +221,11 @@
               <div id="gpsLabel">กำลังระบุตำแหน่ง...</div>
               <div class="gps-coords" id="gpsCoords"></div>
             </div>
-            <button class="gps-retry-btn" onclick="getLocation()" id="gpsRetryBtn" style="display:none;">🔄 ลองใหม่</button>
+            <button class="gps-retry-btn" onclick="getLocation()" id="gpsRetryBtn" style="display:none;">ลองใหม่</button>
           </div>
           <div class="accuracy-bar"><div class="accuracy-fill" id="accuracyFill"></div></div>
         </div>
 
-        <!-- หมายเหตุ -->
         <div class="form-group">
           <label>หมายเหตุ (ถ้ามี)</label>
           <textarea id="note" placeholder="ระบุเหตุผล หรือรายละเอียดเพิ่มเติม..."></textarea>
@@ -378,41 +233,56 @@
 
         <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">
           <div class="spinner"></div>
-          <span class="btn-text">📍 บันทึกเวลาและพิกัด GPS</span>
+          <span class="btn-text">บันทึกเวลาและพิกัด GPS</span>
         </button>
       </div>
 
-      <!-- History -->
       <div class="card">
-        <div class="card-title">📋 ประวัติวันนี้</div>
+        <div class="card-title">สถิติและประวัติวันนี้ของฉัน</div>
+        <div class="stats-grid" style="margin-bottom: 16px;">
+          <div class="stat-item"><div class="stat-value" id="statToday">0</div><div class="stat-label">ครั้งวันนี้</div></div>
+          <div class="stat-item"><div class="stat-value" id="statTotal">0</div><div class="stat-label">รวมทั้งหมด</div></div>
+        </div>
         <div id="historyList">
           <div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">กำลังโหลด...</div>
         </div>
       </div>
+    </div>
+  </div><div id="screenAdmin" class="screen">
+    <div class="container">
+      
+      <div class="header">
+        <div class="header-icon" style="background: linear-gradient(135deg, #ff6b35, #ff4757);"><i class="fas fa-chart-pie"></i></div>
+        <h1>Dashboard ผู้ดูแลระบบ</h1>
+        <button onclick="showScreen('screenMain')" class="admin-btn" style="margin-top: 10px;">
+          <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">สถิติการลงเวลาภาพรวมพนักงาน</div>
+        <div class="stats-grid" id="adminStatsGrid">
+          <div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;grid-column: span 2;">กำลังโหลดข้อมูล...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">10 รายการล่าสุดของพนักงาน</div>
+        <div id="adminRecentLogs"></div>
+      </div>
 
     </div>
-  </div><!-- /screenMain -->
-
-  <script>
-    // ════════════════════════════════════════
-    // ข้อมูล user ถูก inject จาก Code.gs ผ่าน doGet
-    // (URL ของ GAS และ Spreadsheet ไม่เปิดเผยฝั่ง client)
-    // ════════════════════════════════════════
-    const USER = __USER_JSON__;   // ← Code.gs แทรกค่านี้ตอน doGet
-
-    let gpsData        = { lat: null, lng: null, accuracy: null };
+  </div><script>
+    const USER = __USER_JSON__; 
+    let gpsData = { lat: null, lng: null, accuracy: null };
     let attendanceType = 'เข้างาน';
-    let isSubmitting   = false;
+    let isSubmitting = false;
 
-    // ════════════════════════════════════════
-    // INIT — ตรวจสอบ session แล้วเลือก screen
-    // ════════════════════════════════════════
     (function init() {
       if (!USER || !USER.loggedIn) {
         showErrorScreen(USER);
         return;
       }
-      // login สำเร็จ — แสดงหน้าหลัก
       showMainScreen(USER);
     })();
 
@@ -423,29 +293,32 @@
 
     function showErrorScreen(u) {
       const reasons = {
-        no_session:         { icon:'🔑', title:'ต้องเข้าสู่ระบบ', msg:'เปิดระบบผ่านลิงก์ Google Apps Script เพื่อเข้าสู่ระบบด้วยบัญชี Google' },
-        not_in_system:      { icon:'⛔', title:'ไม่พบบัญชีในระบบ', msg:'บัญชี Google ของคุณยังไม่ได้ลงทะเบียนในระบบพนักงาน กรุณาติดต่อฝ่าย HR' },
-        no_employee_sheet:  { icon:'📋', title:'ไม่พบข้อมูลพนักงาน', msg:'ยังไม่มี Sheet "ข้อมูลพนักงาน" กรุณาสร้างและเพิ่มข้อมูล' },
-        error:              { icon:'⚠️', title:'เกิดข้อผิดพลาด', msg:'ไม่สามารถตรวจสอบบัญชีได้ กรุณาลองใหม่หรือติดต่อผู้ดูแลระบบ' },
+        no_session: { icon:'🔒', title:'ต้องเข้าสู่ระบบ', msg:'เปิดระบบผ่านลิงก์ Google Apps Script เพื่อเข้าสู่ระบบด้วยบัญชี Google' },
+        not_in_system: { icon:'❌', title:'ไม่พบบัญชีในระบบ', msg:'บัญชี Google ของคุณยังไม่ได้ลงทะเบียนในระบบพนักงาน' },
+        no_employee_sheet: { icon:'⚠️', title:'ไม่พบข้อมูลพนักงาน', msg:'ยังไม่มี Sheet "ข้อมูลพนักงาน"' },
+        error: { icon:'🚫', title:'เกิดข้อผิดพลาด', msg:'ไม่สามารถตรวจสอบบัญชีได้ กรุณาลองใหม่' },
       };
       const r = reasons[(u && u.reason) || 'error'] || reasons.error;
-      document.getElementById('errIcon').textContent  = r.icon;
+      document.getElementById('errIcon').textContent = r.icon;
       document.getElementById('errTitle').textContent = r.title;
-      document.getElementById('errMsg').textContent   = r.msg;
+      document.getElementById('errMsg').textContent = r.msg;
       if (u && u.email) document.getElementById('errEmail').textContent = u.email;
       showScreen('screenError');
     }
 
     function showMainScreen(u) {
-      // เติมข้อมูล user
       const initial = (u.fullName || '?').charAt(0).toUpperCase();
       document.getElementById('userAvatar').textContent = initial;
-      document.getElementById('userName').textContent   = u.fullName;
-      document.getElementById('userMeta').textContent   = `${u.department}${u.position ? ' · ' + u.position : ''} · ${u.email}`;
-      document.getElementById('userIdBadge').textContent = u.employeeId;
-      document.getElementById('fieldEmpId').textContent   = u.employeeId;
-      document.getElementById('fieldFullName').textContent = u.fullName;
-      document.getElementById('fieldDept').textContent    = u.department || '-';
+      document.getElementById('userName').textContent = u.fullName;
+      
+      // แสดงข้อมูลบัญชี Google (Email) ตามที่ต้องการ
+      document.getElementById('userMeta').textContent = `${u.department}${u.position ? ' · ' + u.position : ''} · ${u.email}`;
+      
+      // แสดงปุ่ม Admin ถ้าผู้ใช้มีสิทธิ์
+      if (u.isAdmin) {
+        document.getElementById('btnAdmin').style.display = 'block';
+        loadAdminStats(); // โหลดข้อมูล Dashboard ทันที
+      }
 
       showScreen('screenMain');
       updateClock();
@@ -453,51 +326,31 @@
       loadHistory();
     }
 
-    // ════════════════════════════════════════
-    // CLOCK
-    // ════════════════════════════════════════
+    /* === ระบบนาฬิกา === */
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').textContent =
-        [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
-      const days   = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+      document.getElementById('clock').textContent = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+      const days = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
       const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-      document.getElementById('dateTh').textContent =
-        `วน${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()+543}`;
-      document.getElementById('dateEn').textContent =
-        now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      document.getElementById('dateTh').textContent = `วัน${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()+543}`;
+      document.getElementById('dateEn').textContent = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
     }
     setInterval(updateClock, 1000);
 
-    // ════════════════════════════════════════
-    // TYPE
-    // ════════════════════════════════════════
+    /* === การกดประเภทเข้า/ออก === */
     function setType(t) {
       attendanceType = t;
-      document.getElementById('btnIn').className  = t === 'เข้างาน' ? 'type-btn active-in' : 'type-btn';
-      document.getElementById('btnOut').className = t === 'ออกงาน'  ? 'type-btn active-out' : 'type-btn';
+      document.getElementById('btnIn').className = t === 'เข้างาน' ? 'type-btn active-in' : 'type-btn';
+      document.getElementById('btnOut').className = t === 'ออกงาน' ? 'type-btn active-out' : 'type-btn';
     }
 
-    // ════════════════════════════════════════
-    // GPS
-    // ════════════════════════════════════════
+    /* === ระบบ GPS === */
     function getLocation() {
-      const dot  = document.getElementById('gpsDot');
-      const lbl  = document.getElementById('gpsLabel');
-      const crd  = document.getElementById('gpsCoords');
-      const rbtn = document.getElementById('gpsRetryBtn');
-
-      dot.className = 'gps-dot acquiring';
-      lbl.textContent = 'กำลังระบุตำแหน่ง...';
-      crd.textContent = '';
-      rbtn.style.display = 'none';
-      document.getElementById('accuracyFill').style.width = '0%';
-
+      const dot = document.getElementById('gpsDot'), lbl = document.getElementById('gpsLabel'), crd = document.getElementById('gpsCoords'), rbtn = document.getElementById('gpsRetryBtn');
+      dot.className = 'gps-dot acquiring'; lbl.textContent = 'กำลังระบุตำแหน่ง...'; crd.textContent = ''; rbtn.style.display = 'none'; document.getElementById('accuracyFill').style.width = '0%';
+      
       if (!navigator.geolocation) {
-        dot.className = 'gps-dot error';
-        lbl.textContent = 'อุปกรณ์ไม่รองรับ GPS';
-        rbtn.style.display = 'block';
-        return;
+        dot.className = 'gps-dot error'; lbl.textContent = 'อุปกรณ์ไม่รองรับ GPS'; rbtn.style.display = 'block'; return;
       }
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -509,39 +362,27 @@
           document.getElementById('accuracyFill').style.width = Math.round((1-(a-5)/95)*100) + '%';
         },
         err => {
-          dot.className = 'gps-dot error';
-          rbtn.style.display = 'block';
+          dot.className = 'gps-dot error'; rbtn.style.display = 'block';
           lbl.textContent = ({1:'ไม่ได้รับอนุญาต GPS',2:'ไม่พบสัญญาณ GPS',3:'หมดเวลา'})[err.code] || 'เกิดข้อผิดพลาด';
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     }
 
-    // ════════════════════════════════════════
-    // SUBMIT  —  เรียกผ่าน google.script.run
-    // (ข้อมูลพนักงานถูกยืนยันฝั่ง server อีกครั้ง)
-    // ════════════════════════════════════════
+    /* === การบันทึกเวลา === */
     function submitAttendance() {
       if (isSubmitting) return;
       if (!gpsData.lat) {
         Swal.fire({ icon:'warning', title:'ยังไม่พบตำแหน่ง GPS', text:'กรุณารอหรือกด "ลองใหม่"', confirmButtonText:'ตกลง', customClass:{popup:'swal2-popup'} });
         return;
       }
-
       isSubmitting = true;
-      const btn = document.getElementById('submitBtn');
-      btn.classList.add('loading');
-      btn.disabled = true;
-
-      // ส่งเฉพาะข้อมูลที่ user ป้อนเอง — ชื่อ/รหัสพนักงานไม่ส่งมาจาก client
+      const btn = document.getElementById('submitBtn'); btn.classList.add('loading'); btn.disabled = true;
+      
       const payload = {
-        type:      attendanceType,
-        latitude:  gpsData.lat,
-        longitude: gpsData.lng,
-        accuracy:  gpsData.accuracy,
-        note:      document.getElementById('note').value.trim(),
+        type: attendanceType, latitude: gpsData.lat, longitude: gpsData.lng, accuracy: gpsData.accuracy, note: document.getElementById('note').value.trim()
       };
-
+      
       google.script.run
         .withSuccessHandler(onSuccess)
         .withFailureHandler(onError)
@@ -550,26 +391,20 @@
 
     function onSuccess(result) {
       isSubmitting = false;
-      const btn = document.getElementById('submitBtn');
-      btn.classList.remove('loading');
-      btn.disabled = false;
-
+      const btn = document.getElementById('submitBtn'); btn.classList.remove('loading'); btn.disabled = false;
       if (result.success) {
-        const emoji = attendanceType === 'เข้างาน' ? '🟢' : '🔴';
         Swal.fire({
           icon: 'success', title: 'บันทึกสำเร็จ!',
           html: `<div style="text-align:center;line-height:2;">
-            <div style="font-size:36px;">${emoji}</div>
             <div style="font-size:18px;font-weight:700;color:#e8f4fd;">${attendanceType}</div>
             <div style="font-size:32px;font-family:'IBM Plex Mono',monospace;color:#00d4ff;font-weight:500;">${result.time}</div>
             <div style="font-size:13px;color:#7a9bb8;">${result.date}</div>
-            <hr style="border-color:#1e3a5f;margin:12px 0;">
-            <a href="${result.mapsLink}" target="_blank" style="color:#00d4ff;text-decoration:none;font-size:13px;">📍 ดูตำแหน่งบน Google Maps</a>
           </div>`,
           confirmButtonText: 'ตกลง', customClass:{ popup:'swal2-popup' }
         });
         document.getElementById('note').value = '';
         loadHistory();
+        if(USER.isAdmin) loadAdminStats(); // รีเฟรชข้อมูล Admin ด้วย
       } else {
         Swal.fire({ icon:'error', title:'บันทึกไม่สำเร็จ', text:result.message, confirmButtonText:'ตกลง', customClass:{popup:'swal2-popup'} });
       }
@@ -577,40 +412,61 @@
 
     function onError(err) {
       isSubmitting = false;
-      const btn = document.getElementById('submitBtn');
-      btn.classList.remove('loading');
-      btn.disabled = false;
-      Swal.fire({ icon:'error', title:'เกิดข้อผิดพลาด', text:'ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่', confirmButtonText:'ตกลง', customClass:{popup:'swal2-popup'} });
+      const btn = document.getElementById('submitBtn'); btn.classList.remove('loading'); btn.disabled = false;
+      Swal.fire({ icon:'error', title:'เกิดข้อผิดพลาด', text:'ไม่สามารถเชื่อมต่อได้', confirmButtonText:'ตกลง', customClass:{popup:'swal2-popup'} });
     }
 
-    // ════════════════════════════════════════
-    // HISTORY
-    // ════════════════════════════════════════
+    /* === การโหลดประวัติส่วนตัว === */
     function loadHistory() {
       google.script.run
         .withSuccessHandler(data => {
           document.getElementById('statToday').textContent = data.todayTotal || 0;
           document.getElementById('statTotal').textContent = data.total || 0;
-          renderHistory(data.records || []);
-        })
-        .getSummaryData();
+          renderHistory(data.records || [], 'historyList', true);
+        }).getSummaryData();
     }
 
-    function renderHistory(list) {
-      const el = document.getElementById('historyList');
+    /* === การโหลด Admin Dashboard === */
+    function loadAdminStats() {
+      google.script.run
+        .withSuccessHandler(data => {
+          if(!data) return;
+          document.getElementById('adminStatsGrid').innerHTML = `
+            <div class="stat-item"><div class="stat-value">${data.daily}</div><div class="stat-label">รายวัน</div></div>
+            <div class="stat-item"><div class="stat-value">${data.weekly}</div><div class="stat-label">สัปดาห์นี้</div></div>
+            <div class="stat-item"><div class="stat-value">${data.monthly}</div><div class="stat-label">เดือนนี้</div></div>
+            <div class="stat-item"><div class="stat-value">${data.quarterly}</div><div class="stat-label">ไตรมาสนี้</div></div>
+            <div class="stat-item"><div class="stat-value">${data.halfYearly}</div><div class="stat-label">ครึ่งปีแรก/หลัง</div></div>
+            <div class="stat-item"><div class="stat-value">${data.yearly}</div><div class="stat-label">ปีปฏิทิน</div></div>
+            <div class="stat-item" style="grid-column: span 2; background: rgba(0,212,255,0.1); border-color: var(--accent);">
+               <div class="stat-value" style="color:var(--accent);">${data.fiscalYear}</div><div class="stat-label">ปีงบประมาณ</div>
+            </div>
+          `;
+          renderHistory(data.rawRecords, 'adminRecentLogs', false);
+        }).getAdminStats();
+    }
+
+    /* === Function Helper วาดรายการประวัติ === */
+    function renderHistory(list, elementId, isPersonal) {
+      const el = document.getElementById(elementId);
       if (!list.length) {
-        el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">ยังไม่มีรายการวันนี้</div>';
+        el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">ยังไม่มีรายการ</div>';
         return;
       }
       el.innerHTML = list.map(r => {
-        const isIn = r[4] === 'เข้างาน';
+        // อิง index ของ array ต่างกันระหว่าง personal กับ admin logs
+        const isIn = isPersonal ? r[4] === 'เข้างาน' : r.type === 'เข้างาน';
+        const nameText = isPersonal ? r[7] : `${r.name}`;
+        const timeMeta = isPersonal ? `${r[5]} · ${r[6]}` : `${r.date} ${r.time}`;
+        const mapHref = isPersonal ? r[11] : r.mapsLink;
+        
         return `<div class="history-item">
-          <span class="history-badge ${isIn?'badge-in':'badge-out'}">${isIn?'▲ IN':'▼ OUT'}</span>
+          <span class="history-badge ${isIn?'badge-in':'badge-out'}">${isIn?'IN':'OUT'}</span>
           <div class="history-info">
-            <div class="history-time">${r[7]}</div>
-            <div class="history-meta">${r[5]} · ${r[6]}</div>
+            <div class="history-time">${nameText}</div>
+            <div class="history-meta">${timeMeta}</div>
           </div>
-          <a class="maps-link" href="${r[11]}" target="_blank">📍</a>
+          <a class="maps-link" href="${mapHref}" target="_blank"><i class="fas fa-map-marker-alt"></i></a>
         </div>`;
       }).join('');
     }
